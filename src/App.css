@@ -36,3 +36,28 @@
     transform: rotate(360deg);
   }
 }
+.threecols{
+  display: flex;
+  justify-content: space-between;
+}
+.threecols p{
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+/* .Polaris-ResourceItem{
+  background-color: #e45370;
+}
+.Polaris-ResourceItem__Container:hover{
+  background-color: #e45370;
+  cursor: initial;
+}
+.Polaris-Card__Section{
+  background-color: #e45370;
+} */
+div a{
+  z-index: 99;
+}
+div span{
+  z-index: 99;
+}
