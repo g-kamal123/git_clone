@@ -9,67 +9,79 @@ import {
   TextField,
   TextStyle,
 } from "@shopify/polaris";
-import React, { useEffect, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { mapToDispatch, mapToState } from "../Actions/Maps";
+import Errorboundary from "../errorBoundary/Errorboundary";
 import { useFetch } from "./FetchHook";
-const Search1 = (props) => {
+type sProps = ReturnType<typeof mapToDispatch> & ReturnType<typeof mapToState>;
+const Search1: FC<sProps> = (props) => {
+  console.log(props)
+  const [apiError,setApiError] = useState<string>("")
+  let ref:any = useRef();
   const nav = useNavigate();
   const [inp, setInp] = useState();
   const [api] = useFetch("https://api.github.com/users");
   const [loading, setLoading] = useState(false);
-  async function saveInput() {
+  if(apiError){
+    throw new Error(apiError);
+  }
+  async function saveInput(e: string) {
     setLoading(true);
     const ft = await api._get();
-    const all = ft.filter((item) => item.login.includes(inp));
-    // console.log(all)
-    let dt = [];
+    if(!Array.isArray(ft)){
+      setApiError(ft.message)
+      return
+    }else setApiError("")
+    const all: any = ft.filter((item: any) => item.login.includes(e));
+    let dt: any = [];
     for (let i = 0; i < all.length; i++) {
-      const f = await api._get([all[i].login]);
-      // console.log(f)
-      dt = [...dt, f];
+      const data = await api._get([all[i].login]);
+      dt = [...dt, data];
     }
     console.log(dt);
 
     props.printProfile(dt);
     setLoading(false);
   }
-  // console.log(props);
-  const inpHandler = (e) => {
+  const inpHandler = (e: any) => {
     setInp(e);
+    if (e) {
+      clearTimeout(ref.current);
+      ref.current = setTimeout(()=>saveInput(e), 1000);
+    }
   };
-  useEffect(() => {
-    if (inp) var time = setTimeout(saveInput, 1000);
-    return () => {
-      clearInterval(time);
-    };
-  }, [inp]);
   return (
     <Page title="Github">
       <Card sectioned>
         <Heading>Get Github Profile Cards!</Heading>
-        <TextField placeholder="search" value={inp} onChange={inpHandler} />
+        <TextField
+          placeholder="search"
+          value={inp}
+          onChange={inpHandler}
+          autoComplete="off"
+          label=""
+        />
       </Card>
-      {props.userProfile.map((item1, i) => (
+      { props && props.userProfile?.map((item1: any, i: number) => (
         <Card sectioned key={i}>
           <ResourceList
             resourceName={{ singular: "customer", plural: "customers" }}
             items={[
               {
-                id: 145,
-
+                id: "145",
                 avatarSource: `${item1.avatar_url}`,
                 name: `${item1.login}`,
               },
             ]}
             renderItem={(item) => {
-              const { id, url, avatarSource, name } = item;
+              const { id, avatarSource, name } = item;
               return (
                 <ResourceItem
                   verticalAlignment="center"
                   id={id}
-                  url={url}
+                  url={""}
                   media={
                     <Avatar
                       customer
@@ -92,7 +104,7 @@ const Search1 = (props) => {
                     <Button
                       onClick={() => {
                         props.setUser(item1.login);
-                        sessionStorage.setItem('name',item1.login)
+                        sessionStorage.setItem("name", item1.login);
                         nav("/user");
                       }}
                     >
@@ -117,4 +129,16 @@ const Search1 = (props) => {
   );
 };
 
-export default connect(mapToState, mapToDispatch)(Search1);
+export const errorBoundary =(Comp:any|React.FC|JSX.Element)=>{
+  const Wrapper = (props: Object):JSX.Element=>{
+    return (
+    <Errorboundary>
+      <Comp {...props}/>
+    </Errorboundary>
+    )
+  }
+  return connect(mapToState,mapToDispatch)(Wrapper)
+}
+
+export default (errorBoundary)(Search1);
+// export default connect(mapToState,mapToDispatch)(Search1)

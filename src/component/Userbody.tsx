@@ -1,5 +1,5 @@
 import { Avatar, Button, Card, Heading, Icon, Tabs } from "@shopify/polaris";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState,FC } from "react";
 import {
   CustomersMajor,
   StarOutlineMinor,
@@ -10,27 +10,28 @@ import {
   HeartMajor,
 } from "@shopify/polaris-icons";
 import Repo from "./Repo";
-import { connect } from "react-redux";
-import { mapToState } from "../Actions/Maps";
+import { mapToDispatch, mapToState } from "../Actions/Maps";
 import { useFetch } from "./FetchHook";
-
-const Userbody = (props) => {
+import { errorBoundary } from "./Search1";
+type userBProps =ReturnType<typeof mapToDispatch> & ReturnType<typeof mapToState>;
+const Userbody:FC<userBProps> = (props) => {
   const [selected, setSelected] = useState(0);
-  const [detail,setDetail] = useState([])
+  const [detail,setDetail] = useState<any>([])
   const [api] = useFetch("https://api.github.com/users");
 
   useEffect(()=>{
     const getData = async () => {
-      const ftch = await api._get([props.user]);
+      const ftch:any = await api._get([props.user]);
       // setRepos(ftch);
       // console.log(ftch);
       setDetail([ftch])
     };
     getData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 console.log(detail)
   const handleTabChange = useCallback(
-    (selectedTabIndex) => setSelected(selectedTabIndex),
+    (selectedTabIndex:number) => setSelected(selectedTabIndex),
     []
   );
 
@@ -68,7 +69,7 @@ console.log(detail)
           >
             <p style={{ width: "14vw" }}>
               <Avatar
-                size=""
+                size="medium"
                 name={props.user}
                 source={detail[0]?.avatar_url}
               />
@@ -79,7 +80,7 @@ console.log(detail)
               shared language that guides how we build high-quality merchant
               experiences.
             </p>
-            <p style={{ display: "flex", alignItem: "center", gap: "2vw" }}>
+            <p style={{ display: "flex", alignItems: "center", gap: "2vw" }}>
               <Button>Follow</Button>
               <Button icon={HeartMajor}>Sponsor</Button>
             </p>
@@ -162,4 +163,4 @@ console.log(detail)
   );
 };
 
-export default connect(mapToState)(Userbody);
+export default errorBoundary(Userbody);

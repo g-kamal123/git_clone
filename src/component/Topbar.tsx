@@ -1,10 +1,10 @@
-import { DisplayText, Frame, TopBar } from "@shopify/polaris";
-import React, { useCallback, useState } from "react";
+import { Frame, TopBar } from "@shopify/polaris";
+import React, { FC, useCallback, useState } from "react";
 import { ArrowLeftMinor } from "@shopify/polaris-icons";
-import { connect } from "react-redux";
-import { mapToState } from "../Actions/Maps";
-
-const Topbar = (props) => {
+import { mapToDispatch, mapToState } from "../Actions/Maps";
+import { errorBoundary } from "./Search1";
+type tProps = ReturnType<typeof mapToDispatch> & ReturnType<typeof mapToState>;
+const Topbar: FC<tProps> = (props) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isSecondaryMenuOpen, setIsSecondaryMenuOpen] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -20,7 +20,7 @@ const Topbar = (props) => {
     []
   );
 
-  const handleSearchChange = useCallback((value) => {
+  const handleSearchChange = useCallback((value: string) => {
     setSearchValue(value);
     setIsSearchActive(value.length > 0);
   }, []);
@@ -42,7 +42,7 @@ const Topbar = (props) => {
       ]}
       name={props.user}
       // detail="Jaded Pixel"
-      initials={props.user[0]}
+      initials={props.user?.charAt(0)}
       open={isUserMenuOpen}
       onToggle={toggleIsUserMenuOpen}
     />
@@ -76,7 +76,6 @@ const Topbar = (props) => {
       ]}
     />
   );
-  const allL = <DisplayText>gfgdghfghdfg</DisplayText>;
   const topBarMarkup = (
     <TopBar
       showNavigationToggle
@@ -87,7 +86,6 @@ const Topbar = (props) => {
       // searchResults={searchResultsMarkup}
       // onSearchResultsDismiss={handleSearchResultsDismiss}
       // onNavigationToggle={handleNavigationToggle}
-      alllinks={allL}
     />
   );
   return (
@@ -97,4 +95,4 @@ const Topbar = (props) => {
   );
 };
 
-export default connect(mapToState)(Topbar);
+export default errorBoundary(Topbar);

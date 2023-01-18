@@ -1,11 +1,11 @@
-import { Button, Layout, Link, Page } from "@shopify/polaris";
-import React, { useEffect, useState } from "react";
+import { Button, Layout, Page } from "@shopify/polaris";
+import React, { FC, useEffect, useState } from "react";
 import { StarOutlineMinor } from "@shopify/polaris-icons";
 import { useFetch } from "./FetchHook";
-import { mapToState } from "../Actions/Maps";
+import { mapToDispatch, mapToState } from "../Actions/Maps";
 import { connect } from "react-redux";
-
-function Repo(props) {
+type rProps =ReturnType<typeof mapToDispatch> & ReturnType<typeof mapToState>;
+const Repo:FC<rProps> = (props)=> {
   const [api] = useFetch("https://api.github.com/users");
   const [repos, setRepos] = useState([]);
   useEffect(() => {
@@ -15,12 +15,13 @@ function Repo(props) {
       // console.log(ftch);
     };
     getData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   console.log(props);
   return (
     <Page fullWidth>
       <Layout>
-        {repos.map((item, i) => (
+        {repos.map((item:any, i) => (
           <Layout.Section key={i}>
             <div
               style={{

@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Search1 from './component/Search1';
 import User from './component/User';
+import React from 'react';
 
 function App() {
   return (
